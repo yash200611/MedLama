@@ -14,14 +14,14 @@ import { findAvailableDoctors, findNearbyHospitals } from "@/lib/analysis";
 
 type Stage = "chat" | "analysis" | "doctors" | "history";
 
-const LamaLogo = () => (
-  <div className="relative group">
-    <div className="absolute -inset-1 bg-gradient-to-r from-primary/20 to-green-500/20 rounded-full blur ai-thinking"></div>
-    <div className="relative z-10 rounded-full bg-primary/10 p-2 transition-transform group-hover:scale-110">
-      <div className="relative">
-        <Bot className="h-6 w-6 text-primary" />
-        <Stethoscope className="h-4 w-4 text-primary absolute -top-1 -right-1 transform rotate-45" />
-      </div>
+const MedLamaLogo = () => (
+  <div className="flex items-center gap-3">
+    <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center">
+      <Stethoscope className="h-5 w-5 text-white" />
+    </div>
+    <div>
+      <h1 className="text-xl font-semibold text-gray-900 dark:text-white">MedLama</h1>
+      <p className="text-xs text-gray-500 dark:text-gray-400">AI Health Assistant</p>
     </div>
   </div>
 );
@@ -282,39 +282,33 @@ export default function Home() {
   };
 
   const Header = () => (
-    <header className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
-      <div className="container flex h-16 items-center justify-between">
-        <div className="flex items-center gap-3">
-          <LamaLogo />
-          <div>
-            <span className="text-xl font-semibold bg-gradient-to-r from-primary via-green-500 to-emerald-500 bg-clip-text text-transparent">
-              MedLama
-            </span>
-            <span className="text-xs text-muted-foreground block">AI-Powered Health Assistant</span>
+    <header className="sticky top-0 z-50 w-full border-b border-gray-200 dark:border-gray-800 bg-white/80 dark:bg-gray-900/80 backdrop-blur-sm">
+      <div className="max-w-4xl mx-auto px-4 py-3">
+        <div className="flex items-center justify-between">
+          <MedLamaLogo />
+          <div className="flex items-center gap-2">
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={() => setStage(stage === "history" ? "chat" : "history")}
+              className="text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white"
+            >
+              <Clock className="h-4 w-4 mr-2" />
+              History
+            </Button>
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={() => setTheme(theme === "dark" ? "light" : "dark")}
+              className="text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white"
+            >
+              {theme === "dark" ? (
+                <Sun className="h-4 w-4" />
+              ) : (
+                <Moon className="h-4 w-4" />
+              )}
+            </Button>
           </div>
-        </div>
-        <div className="flex items-center gap-2">
-          <Button
-            variant="ghost"
-            size="sm"
-            onClick={() => setStage(stage === "history" ? "chat" : "history")}
-            className="rounded-full hover:bg-secondary/80"
-          >
-            <Clock className="h-5 w-5 mr-1" />
-            <span className="hidden sm:inline">History</span>
-          </Button>
-          <Button
-            variant="ghost"
-            size="icon"
-            onClick={() => setTheme(theme === "dark" ? "light" : "dark")}
-            className="rounded-full hover:bg-secondary/80"
-          >
-            {theme === "dark" ? (
-              <Sun className="h-5 w-5" />
-            ) : (
-              <Moon className="h-5 w-5" />
-            )}
-          </Button>
         </div>
       </div>
     </header>
@@ -323,42 +317,58 @@ export default function Home() {
   // History view
   if (stage === "history") {
     return (
-      <div className="flex min-h-screen flex-col bg-background hexagon-bg">
+      <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
         <Header />
-        <main className="flex flex-1 flex-col items-center p-4 md:p-8">
-          <Card className="w-full max-w-4xl p-6 shadow-lg glass-card">
+        <main className="max-w-4xl mx-auto px-4 py-6">
+          <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 p-6">
             <div className="flex items-center justify-between mb-6">
-              <h2 className="text-2xl font-bold bg-gradient-to-r from-primary to-green-600 bg-clip-text text-transparent">
+              <h2 className="text-2xl font-semibold text-gray-900 dark:text-white">
                 Consultation History
               </h2>
-              <Button onClick={createNewConversation} className="rounded-full">
+              <Button 
+                onClick={createNewConversation} 
+                className="bg-blue-600 hover:bg-blue-700 text-white"
+              >
                 New Consultation
               </Button>
             </div>
 
             {conversations.length === 0 ? (
-              <div className="text-center py-8 text-muted-foreground">
-                <p>No previous consultations found.</p>
-                <Button onClick={createNewConversation} className="mt-4">
-                  Start your first consultation
+              <div className="text-center py-12">
+                <div className="w-16 h-16 mx-auto mb-4 bg-gray-100 dark:bg-gray-700 rounded-full flex items-center justify-center">
+                  <Clock className="h-8 w-8 text-gray-400" />
+                </div>
+                <h3 className="text-lg font-medium text-gray-900 dark:text-white mb-2">
+                  No consultations yet
+                </h3>
+                <p className="text-gray-600 dark:text-gray-400 mb-6">
+                  Start your first health consultation to see your history here.
+                </p>
+                <Button 
+                  onClick={createNewConversation} 
+                  className="bg-blue-600 hover:bg-blue-700 text-white"
+                >
+                  Start First Consultation
                 </Button>
               </div>
             ) : (
-              <div className="space-y-2">
+              <div className="space-y-3">
                 {conversations.map(conv => (
                   <div
                     key={conv.id}
-                    className="p-4 border rounded-lg hover:bg-secondary/20 cursor-pointer transition-colors"
+                    className="p-4 border border-gray-200 dark:border-gray-700 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 cursor-pointer transition-colors"
                     onClick={() => loadConversation(conv.id)}
                   >
                     <div className="flex justify-between items-start">
-                      <div>
-                        <h3 className="font-medium">{conv.title}</h3>
-                        <p className="text-sm text-muted-foreground truncate max-w-md">
+                      <div className="flex-1">
+                        <h3 className="font-medium text-gray-900 dark:text-white mb-1">
+                          {conv.title}
+                        </h3>
+                        <p className="text-sm text-gray-600 dark:text-gray-400 line-clamp-2">
                           {conv.lastMessage}
                         </p>
                       </div>
-                      <span className="text-xs text-muted-foreground">
+                      <span className="text-xs text-gray-500 dark:text-gray-400 ml-4 flex-shrink-0">
                         {conv.date.toLocaleDateString()}
                       </span>
                     </div>
@@ -366,7 +376,7 @@ export default function Home() {
                 ))}
               </div>
             )}
-          </Card>
+          </div>
         </main>
       </div>
     );
@@ -375,72 +385,63 @@ export default function Home() {
   // Analysis view
   if (stage === "analysis" && analysis) {
     return (
-      <div className="flex min-h-screen flex-col bg-background hexagon-bg">
+      <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
         <Header />
-        <main className="flex flex-1 flex-col items-center p-4 md:p-8">
-          <Card className="w-full max-w-4xl p-6 shadow-lg glass-card">
-            <div className="flex items-center mb-6">
-              {/* <Button
-                variant="ghost"
-                className="mr-2 rounded-full"
-                onClick={() => setStage("chat")}
-              >
-                <ArrowLeft className="h-4 w-4 mr-2" />
-                Back to Chat
-              </Button> */}
-              <h2 className="text-2xl font-bold bg-gradient-to-r from-primary to-green-600 bg-clip-text text-transparent">
+        <main className="max-w-4xl mx-auto px-4 py-6">
+          <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 p-6">
+            <div className="mb-6">
+              <h2 className="text-2xl font-semibold text-gray-900 dark:text-white mb-2">
                 Symptom Analysis
               </h2>
+              <SeverityIndicator severity={analysis.severity} />
             </div>
 
-            <SeverityIndicator severity={analysis.severity} />
-
-            <div className="mt-8">
-              <h3 className="text-xl font-semibold mb-4">AI Analysis Summary</h3>
-              <p className="text-muted-foreground">{analysis.report}</p>
+            <div className="mb-8">
+              <h3 className="text-lg font-medium text-gray-900 dark:text-white mb-4">AI Analysis Summary</h3>
+              <div className="bg-gray-50 dark:bg-gray-700 rounded-lg p-4">
+                <p className="text-gray-700 dark:text-gray-300 leading-relaxed whitespace-pre-wrap">{analysis.report}</p>
+              </div>
             </div>
 
-            <div className="mt-8">
-              <h3 className="text-xl font-semibold mb-4">Recommended Facilities</h3>
+            <div className="mb-8">
+              <h3 className="text-lg font-medium text-gray-900 dark:text-white mb-4">Recommended Facilities</h3>
               <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
                 {facilities.map((facility, idx) => (
-                  <div key={idx} className="border rounded-lg p-4 bg-card/50 hover:shadow-md transition-shadow">
+                  <div key={idx} className="border border-gray-200 dark:border-gray-700 rounded-lg p-4 bg-white dark:bg-gray-800 hover:shadow-md transition-shadow">
                     <div className="flex items-center gap-3 mb-2">
-                      <div className="w-12 h-12 bg-primary/20 rounded-full flex items-center justify-center">
-                        <Stethoscope className="h-6 w-6 text-primary" />
+                      <div className="w-10 h-10 bg-blue-100 dark:bg-blue-900 rounded-lg flex items-center justify-center">
+                        <Stethoscope className="h-5 w-5 text-blue-600 dark:text-blue-400" />
                       </div>
                       <div>
-                        <h4 className="font-medium">{facility.name}</h4>
-                        <p className="text-xs text-primary">{facility.address}</p>
+                        <h4 className="font-medium text-gray-900 dark:text-white">{facility.name}</h4>
+                        <p className="text-xs text-gray-600 dark:text-gray-400">{facility.address}</p>
                       </div>
                     </div>
-                    <div>
-                      <p className="text-s text-primary mb-1">Phone: {facility.phone}</p>
-                    </div>
+                    <p className="text-sm text-gray-600 dark:text-gray-400">Phone: {facility.phone}</p>
                   </div>
                 ))}
               </div>
             </div>
 
-            <div className="mt-8">
-              <h3 className="text-xl font-semibold mb-4">Recommended Specialists</h3>
+            <div className="mb-8">
+              <h3 className="text-lg font-medium text-gray-900 dark:text-white mb-4">Recommended Specialists</h3>
               <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
                 {doctors.map((doctor, idx) => (
-                  <div key={idx} className="border rounded-lg p-4 bg-card/50 hover:shadow-md transition-shadow">
+                  <div key={idx} className="border border-gray-200 dark:border-gray-700 rounded-lg p-4 bg-white dark:bg-gray-800 hover:shadow-md transition-shadow">
                     <div className="flex items-center gap-3 mb-2">
-                      <div className="w-12 h-12 bg-primary/20 rounded-full flex items-center justify-center">
-                        <User className="h-6 w-6 text-primary" />
+                      <div className="w-10 h-10 bg-blue-100 dark:bg-blue-900 rounded-lg flex items-center justify-center">
+                        <User className="h-5 w-5 text-blue-600 dark:text-blue-400" />
                       </div>
                       <div>
-                        <h4 className="font-medium">{doctor.name}</h4>
-                        <p className="text-xs text-primary">{doctor.specialty}</p>
+                        <h4 className="font-medium text-gray-900 dark:text-white">{doctor.name}</h4>
+                        <p className="text-xs text-gray-600 dark:text-gray-400">{doctor.specialty}</p>
                       </div>
                     </div>
-                    <div>
-                      <p className="text-s text-primary">Phone: {doctor.phone}</p>
-                      <p className="text-s text-primary">Email: {doctor.email}</p>
+                    <div className="mb-3">
+                      <p className="text-sm text-gray-600 dark:text-gray-400">Phone: {doctor.phone}</p>
+                      <p className="text-sm text-gray-600 dark:text-gray-400">Email: {doctor.email}</p>
                     </div>
-                    <Button size="sm" className="w-full">
+                    <Button size="sm" className="w-full bg-blue-600 hover:bg-blue-700 text-white">
                       Schedule Appointment
                     </Button>
                   </div>
@@ -448,83 +449,105 @@ export default function Home() {
               </div>
             </div>
 
-            <div className="flex justify-between mt-8">
-              {/* <Button
-                onClick={() => setStage("chat")}
-                variant="outline"
-              >
-                Continue Chat
-              </Button> */}
+            <div className="flex justify-center">
               <Button
                 onClick={createNewConversation}
-                variant="default"
+                className="bg-blue-600 hover:bg-blue-700 text-white"
               >
                 New Consultation
               </Button>
             </div>
-          </Card>
+          </div>
         </main>
       </div>
     );
   }
 
   return (
-    <div className="flex min-h-screen flex-col bg-background hexagon-bg">
+    <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
       <Header />
-      <main className="flex flex-1 flex-col items-center p-4 md:p-8">
-        <Card className={`flex h-[80vh] w-full max-w-4xl flex-col shadow-lg glass-card transition-opacity duration-300 ${isDimmed ? 'opacity-95' : ''}`}>
-          <ScrollArea className="flex-1 p-4 chat-container">
-            <div className="space-y-4">
+      
+      {/* Main Chat Interface */}
+      <main className="max-w-4xl mx-auto px-4 py-6">
+        <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 overflow-hidden">
+          
+          {/* Chat Messages Area */}
+          <div className="h-[70vh] overflow-y-auto p-6">
+            <div className="space-y-6">
               {messages.map((message, i) => (
                 <div
                   key={i}
-                  className={`flex items-start gap-4 message-fade-in ${
+                  className={`flex gap-4 ${
                     message.role === "assistant" ? "flex-row" : "flex-row-reverse"
                   }`}
                 >
-                  <div className={`rounded-full p-2 ${
+                  {/* Avatar */}
+                  <div className={`flex-shrink-0 w-8 h-8 rounded-full flex items-center justify-center ${
                     message.role === "assistant"
-                      ? "bg-primary/10"
-                      : "bg-secondary"
+                      ? "bg-blue-100 dark:bg-blue-900"
+                      : "bg-gray-100 dark:bg-gray-700"
                   }`}>
                     {message.role === "assistant" ? (
-                      <Bot className="h-6 w-6 text-primary" />
+                      <Bot className="h-4 w-4 text-blue-600 dark:text-blue-400" />
                     ) : (
-                      <User className="h-6 w-6" />
+                      <User className="h-4 w-4 text-gray-600 dark:text-gray-400" />
                     )}
                   </div>
-                  <div
-                    className={`rounded-lg px-4 py-3 ${
+                  
+                  {/* Message Content */}
+                  <div className={`flex-1 max-w-3xl ${
+                    message.role === "assistant" ? "" : "text-right"
+                  }`}>
+                    <div className={`inline-block px-4 py-3 rounded-2xl ${
                       message.role === "assistant"
-                        ? "bg-card/50 border shadow-sm backdrop-blur-sm"
-                        : "bg-primary text-primary-foreground"
-                    }`}
-                  >
-                    {message.content}
+                        ? "bg-gray-100 dark:bg-gray-700 text-gray-900 dark:text-gray-100"
+                        : "bg-blue-600 text-white"
+                    }`}>
+                      <p className="text-sm leading-relaxed whitespace-pre-wrap">{message.content}</p>
+                    </div>
                   </div>
                 </div>
               ))}
+              
+              {/* Processing Indicator */}
               {isProcessing && (
-                <div className="flex items-center gap-2 text-muted-foreground processing">
-                  <Bot className="h-5 w-5" />
-                  <span>Thinking...</span>
+                <div className="flex gap-4">
+                  <div className="flex-shrink-0 w-8 h-8 rounded-full bg-blue-100 dark:bg-blue-900 flex items-center justify-center">
+                    <Bot className="h-4 w-4 text-blue-600 dark:text-blue-400 animate-pulse" />
+                  </div>
+                  <div className="flex-1">
+                    <div className="inline-block px-4 py-3 rounded-2xl bg-gray-100 dark:bg-gray-700">
+                      <div className="flex items-center gap-2 text-gray-600 dark:text-gray-400">
+                        <div className="flex gap-1">
+                          <div className="w-2 h-2 bg-gray-400 rounded-full animate-bounce"></div>
+                          <div className="w-2 h-2 bg-gray-400 rounded-full animate-bounce" style={{animationDelay: '0.1s'}}></div>
+                          <div className="w-2 h-2 bg-gray-400 rounded-full animate-bounce" style={{animationDelay: '0.2s'}}></div>
+                        </div>
+                        <span className="text-sm">Thinking...</span>
+                      </div>
+                    </div>
+                  </div>
                 </div>
               )}
+              
               <div ref={scrollRef} />
             </div>
-          </ScrollArea>
+          </div>
 
-          <div className="border-t p-4 space-y-4 bg-background/50 backdrop-blur-sm">
+          {/* Input Area */}
+          <div className="border-t border-gray-200 dark:border-gray-700 p-4 bg-gray-50 dark:bg-gray-800">
+            
+            {/* Conversation Starters */}
             {showConversationStarters && messages.length <= 2 && (
               <div className="mb-4">
-                <p className="text-xs text-muted-foreground mb-2">Quick start with common concerns:</p>
+                <p className="text-sm text-gray-600 dark:text-gray-400 mb-3">Common health concerns:</p>
                 <div className="flex flex-wrap gap-2">
                   {conversationStarters.map((starter, idx) => (
                     <Button
                       key={idx}
                       variant="outline"
                       size="sm"
-                      className="text-xs rounded-full"
+                      className="text-xs bg-white dark:bg-gray-700 hover:bg-gray-50 dark:hover:bg-gray-600 border-gray-200 dark:border-gray-600"
                       onClick={() => handleStarterSelect(starter)}
                     >
                       {starter}
@@ -534,60 +557,43 @@ export default function Home() {
               </div>
             )}
 
-            <form
-              onSubmit={handleSubmit}
-              className="flex items-center gap-2"
-            >
-              <Input
-                placeholder="Describe what you're feeling..."
-                value={input}
-                onChange={(e) => setInput(e.target.value)}
-                className="flex-1 rounded-full bg-secondary/50"
-              />
-              <Button
-                type="submit"
-                size="icon"
-                className="rounded-full hover:glow-effect"
-                disabled={isProcessing}
-              >
-                <Send className="h-4 w-4" />
-              </Button>
+            {/* Input Form */}
+            <form onSubmit={handleSubmit} className="flex gap-3">
+              <div className="flex-1 relative">
+                <Input
+                  placeholder="Describe your symptoms or health concerns..."
+                  value={input}
+                  onChange={(e) => setInput(e.target.value)}
+                  className="w-full pr-12 py-3 bg-white dark:bg-gray-700 border-gray-300 dark:border-gray-600 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  disabled={isProcessing}
+                />
+                <Button
+                  type="submit"
+                  size="sm"
+                  className="absolute right-2 top-1/2 transform -translate-y-1/2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg px-3"
+                  disabled={isProcessing || !input.trim()}
+                >
+                  <Send className="h-4 w-4" />
+                </Button>
+              </div>
             </form>
 
-            {/* {isReadyForAnalysis && (
+            {/* Additional Actions */}
+            <div className="mt-3 flex justify-center">
               <Button
-                className="w-full mt-4 rounded-full hover:glow-effect"
-                onClick={handleAnalysis}
-                variant="default"
-                disabled={isProcessing}
+                variant="outline"
+                size="sm"
+                onClick={() => alert("Teleconsultation feature coming soon!")}
+                className="text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white border-gray-200 dark:border-gray-600"
               >
-                {isProcessing ? (
-                  <span className="flex items-center gap-2">
-                    <Bot className="h-4 w-4 animate-spin" />
-                    Analyzing Symptoms...
-                  </span>
-                ) : (
-                  <>
-                    Analyze Symptoms
-                    <ArrowRight className="ml-2 h-4 w-4" />
-                  </>
-                )}
-              </Button>
-            )} */}
-
-            <Button
-              className="w-full mt-4 rounded-full hover:glow-effect"
-              onClick={() => alert("Teleconsultation feature coming soon!")}
-              variant="outline"
-            >
-              <span className="flex items-center gap-2">
-                <Video className="h-4 w-4" />
+                <Video className="h-4 w-4 mr-2" />
                 Schedule Teleconsultation
-              </span>
-            </Button>
+              </Button>
+            </div>
           </div>
-        </Card>
+        </div>
       </main>
     </div>
   );
 }
+
