@@ -1,0 +1,12 @@
+flask
+flask-cors
+pymongo[srv]
+python-dotenv
+langchain
+langchain-core
+langchain-google-genai
+langgraph
+google-generativeai
+requests
+typing-extensions
+ipython

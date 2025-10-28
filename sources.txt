@@ -1,0 +1,11 @@
+# Sources Cited
+
+## Documentation
+- MongoDB: https://www.mongodb.com/docs/
+- Flask: https://flask.palletsprojects.com/en/stable/
+- Flask Quickstart: https://flask.palletsprojects.com/en/stable/quickstart/
+
+## Code Generation with Generative AI
+- GitHub Copilot
+- ChatGPT: https://chatgpt.com
+- Bolt: https://bolt.new
