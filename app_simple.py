@@ -2,118 +2,161 @@ from flask import Flask, request, send_from_directory, jsonify, abort
 from flask_cors import CORS
 import os
 from database import Database
+from analytics import track_symptom_analytics, get_symptom_insights, add_analytics_endpoint
+from health_tips import get_health_tip, get_daily_health_tip
 
-# Enhanced AI response function
+# Enhanced AI response function with conversation memory
+conversation_memory = {}
+
 def run_web_prompt(message):
     """
-    Simulate intelligent medical conversation with follow-up questions
+    Enhanced intelligent medical conversation with memory and context
     """
     message_lower = message.lower()
     
-    # Initial responses based on symptoms
+    # Extract user ID from request (simplified - in real app, use session)
+    user_id = "default_user"
+    
+    # Initialize conversation memory for user
+    if user_id not in conversation_memory:
+        conversation_memory[user_id] = {
+            "symptoms": [],
+            "questions_asked": 0,
+            "context": "initial"
+        }
+    
+    memory = conversation_memory[user_id]
+    
+    # Track symptoms mentioned
     if any(word in message_lower for word in ['chest', 'pain', 'heart']):
-        if 'how long' in message_lower or 'duration' in message_lower:
-            return {
-                "messages": "Thank you for that information. Can you describe the type of chest pain? Is it sharp, dull, burning, or pressure-like? Also, does it radiate to your arm, jaw, or back?",
-                "analysis_complete": False
-            }
-        else:
+        if 'chest pain' not in memory['symptoms']:
+            memory['symptoms'].append('chest pain')
+    elif any(word in message_lower for word in ['headache', 'head', 'migraine']):
+        if 'headache' not in memory['symptoms']:
+            memory['symptoms'].append('headache')
+    elif any(word in message_lower for word in ['fever', 'temperature', 'hot']):
+        if 'fever' not in memory['symptoms']:
+            memory['symptoms'].append('fever')
+    
+    memory['questions_asked'] += 1
+    
+    # Smart conversation flow based on memory
+    if memory['context'] == "initial":
+        if any(word in message_lower for word in ['chest', 'pain', 'heart']):
+            memory['context'] = "chest_pain"
             return {
                 "messages": "I understand you're experiencing chest pain. This is important to evaluate carefully. How long have you been having this chest pain? Is it constant or does it come and go?",
                 "analysis_complete": False
             }
-    
-    elif any(word in message_lower for word in ['headache', 'head', 'migraine']):
-        if 'frequency' in message_lower or 'often' in message_lower:
-            return {
-                "messages": "Thank you for that detail. Can you describe the intensity of your headaches on a scale of 1-10? Also, are there any triggers like stress, certain foods, or changes in weather?",
-                "analysis_complete": False
-            }
-        else:
+        elif any(word in message_lower for word in ['headache', 'head', 'migraine']):
+            memory['context'] = "headache"
             return {
                 "messages": "I see you're experiencing headaches. How frequently do these headaches occur? Are they daily, weekly, or occasional? Also, how long do they typically last?",
                 "analysis_complete": False
             }
-    
-    elif any(word in message_lower for word in ['fever', 'temperature', 'hot']):
-        if 'temperature' in message_lower or 'degrees' in message_lower:
-            return {
-                "messages": "Thank you for providing your temperature. Are you experiencing any other symptoms along with the fever, such as chills, body aches, fatigue, or loss of appetite?",
-                "analysis_complete": False
-            }
-        else:
+        elif any(word in message_lower for word in ['fever', 'temperature', 'hot']):
+            memory['context'] = "fever"
             return {
                 "messages": "I understand you have a fever. Do you know what your temperature is? Also, how long have you been running a fever?",
                 "analysis_complete": False
             }
-    
-    elif any(word in message_lower for word in ['throat', 'sore', 'swollen']):
-        if 'swallowing' in message_lower or 'difficulty' in message_lower:
-            return {
-                "messages": "That sounds concerning. Are you experiencing any difficulty breathing or shortness of breath? Also, have you noticed any swelling in your neck or lymph nodes?",
-                "analysis_complete": False
-            }
         else:
             return {
-                "messages": "I understand you have a sore throat. Is it painful when you swallow? How long have you been experiencing this discomfort?",
+                "messages": "Hello! I'm your AI health assistant. I can help you analyze symptoms and provide guidance. Please describe what symptoms or health concerns you're experiencing in as much detail as possible.",
                 "analysis_complete": False
             }
     
-    elif any(word in message_lower for word in ['rash', 'skin', 'itchy']):
-        if 'location' in message_lower or 'where' in message_lower:
+    # Chest pain conversation flow
+    elif memory['context'] == "chest_pain":
+        if memory['questions_asked'] == 1:
             return {
-                "messages": "Thank you for that information. Is the rash spreading or getting worse? Also, have you recently used any new products, medications, or been exposed to anything unusual?",
+                "messages": "Thank you for that information. Can you describe the type of chest pain? Is it sharp, dull, burning, or pressure-like? Also, does it radiate to your arm, jaw, or back?",
                 "analysis_complete": False
             }
-        else:
+        elif memory['questions_asked'] == 2:
             return {
-                "messages": "I see you have a skin rash. Where on your body is the rash located? Is it itchy, painful, or causing any other discomfort?",
+                "messages": "I appreciate those details. Are you experiencing any other symptoms along with the chest pain, such as shortness of breath, nausea, sweating, or dizziness?",
+                "analysis_complete": False
+            }
+        elif memory['questions_asked'] >= 3:
+            return {
+                "messages": "Based on the symptoms you've described, I have enough information to provide an analysis. Would you like me to analyze your symptoms now?",
                 "analysis_complete": False
             }
     
-    # Generic follow-up for other symptoms
-    elif len(message.split()) > 5:  # If detailed response given
-        return {
-            "messages": "Thank you for providing those details. Based on what you've described, I'd like to ask a few more questions to better understand your situation. Have you experienced any of these symptoms before? Also, are you currently taking any medications or have any known allergies?",
-            "analysis_complete": False
-        }
+    # Headache conversation flow
+    elif memory['context'] == "headache":
+        if memory['questions_asked'] == 1:
+            return {
+                "messages": "Thank you for that detail. Can you describe the intensity of your headaches on a scale of 1-10? Also, are there any triggers like stress, certain foods, or changes in weather?",
+                "analysis_complete": False
+            }
+        elif memory['questions_asked'] == 2:
+            return {
+                "messages": "That's helpful information. Are you experiencing any other symptoms with your headaches, such as nausea, sensitivity to light or sound, or visual changes?",
+                "analysis_complete": False
+            }
+        elif memory['questions_asked'] >= 3:
+            return {
+                "messages": "I have enough information about your headaches. Would you like me to provide an analysis and recommendations?",
+                "analysis_complete": False
+            }
     
-    # Check if enough information gathered for analysis
-    elif any(phrase in message_lower for phrase in ['analyze', 'enough', 'ready', 'complete']):
+    # Fever conversation flow
+    elif memory['context'] == "fever":
+        if memory['questions_asked'] == 1:
+            return {
+                "messages": "Thank you for providing your temperature. Are you experiencing any other symptoms along with the fever, such as chills, body aches, fatigue, or loss of appetite?",
+                "analysis_complete": False
+            }
+        elif memory['questions_asked'] == 2:
+            return {
+                "messages": "That's important information. Have you been exposed to anyone who's been sick recently? Also, are you taking any medications for the fever?",
+                "analysis_complete": False
+            }
+        elif memory['questions_asked'] >= 3:
+            return {
+                "messages": "I have sufficient information about your fever. Would you like me to analyze your symptoms and provide recommendations?",
+                "analysis_complete": False
+            }
+    
+    # Analysis trigger
+    if any(phrase in message_lower for phrase in ['analyze', 'enough', 'ready', 'complete', 'yes', 'please']):
+        # Generate comprehensive analysis based on symptoms
+        symptoms_text = ", ".join(memory['symptoms']) if memory['symptoms'] else "the symptoms you've described"
+        
         return {
-            "messages": """Based on the symptoms you've described, here's my analysis:
+            "messages": f"""Based on {symptoms_text}, here's my comprehensive analysis:
 
 **SYMPTOM ANALYSIS:**
-- Primary concern: Chest pain lasting several days
+- Primary concerns: {', '.join(memory['symptoms']) if memory['symptoms'] else 'General symptoms'}
 - Severity: Moderate (requires medical evaluation)
 - Risk level: MEDIUM
 
 **RECOMMENDATIONS:**
-1. **Immediate Action**: Schedule an appointment with a cardiologist or primary care physician within 24-48 hours
-2. **Monitor**: Keep track of pain intensity, duration, and any new symptoms
-3. **Emergency**: If pain becomes severe, spreads to arm/jaw, or you experience shortness of breath, seek emergency care immediately
+1. **Immediate Action**: Schedule an appointment with a healthcare provider within 24-48 hours
+2. **Monitor**: Keep track of symptom intensity, duration, and any new symptoms
+3. **Emergency**: If symptoms worsen or you experience severe pain, seek emergency care immediately
 
 **POSSIBLE CONDITIONS:**
-- Musculoskeletal chest pain (most common)
-- Gastroesophageal reflux disease (GERD)
-- Anxiety-related chest discomfort
-- Less commonly: Cardiac-related issues
+- Based on your symptoms, several conditions could be considered
+- Further evaluation by a healthcare professional is recommended
+- Diagnostic tests may be needed for accurate assessment
 
 **NEXT STEPS:**
-- Avoid strenuous activity until evaluated
-- Keep a symptom diary
-- Consider over-the-counter antacids if GERD is suspected
+- Document your symptoms in detail
+- Prepare questions for your healthcare provider
+- Consider bringing a symptom diary to your appointment
 
 ⚠️ **Important**: This analysis is for informational purposes only and should not replace professional medical evaluation.""",
             "analysis_complete": True
         }
     
-    # Initial greeting or unclear input
-    else:
-        return {
-            "messages": "Hello! I'm your AI health assistant. I can help you analyze symptoms and provide guidance. Please describe what symptoms or health concerns you're experiencing in as much detail as possible.",
-            "analysis_complete": False
-        }
+    # Default response
+    return {
+        "messages": "Thank you for that information. Can you provide more details about your symptoms?",
+        "analysis_complete": False
+    }
 
 class HooHacksApp:
     def __init__(self):
@@ -157,6 +200,33 @@ class HooHacksApp:
         @self.app.route('/api/llm/delete/')
         def delete_conversation():
             return jsonify(run_web_prompt("exit"))
+
+        @self.app.route('/api/health-tips/')
+        def get_health_tips():
+            symptom_type = request.args.get('type', 'general')
+            return jsonify({"tip": get_health_tip(symptom_type)})
+
+        @self.app.route('/api/health-tips/daily/')
+        def get_daily_tip():
+            return jsonify({"tip": get_daily_health_tip()})
+
+        @self.app.route('/api/analytics/insights/')
+        def get_insights():
+            return jsonify({"insights": get_symptom_insights()})
+
+        @self.app.route('/api/symptoms/suggestions/')
+        def get_symptom_suggestions():
+            suggestions = [
+                {"id": "1", "name": "Chest Pain", "category": "Cardiovascular", "bodyPart": "Chest"},
+                {"id": "2", "name": "Headache", "category": "Neurological", "bodyPart": "Head"},
+                {"id": "3", "name": "Fever", "category": "General", "bodyPart": "Whole Body"},
+                {"id": "4", "name": "Sore Throat", "category": "Respiratory", "bodyPart": "Throat"},
+                {"id": "5", "name": "Nausea", "category": "Digestive", "bodyPart": "Stomach"},
+                {"id": "6", "name": "Fatigue", "category": "General", "bodyPart": "Whole Body"},
+                {"id": "7", "name": "Dizziness", "category": "Neurological", "bodyPart": "Head"},
+                {"id": "8", "name": "Shortness of Breath", "category": "Respiratory", "bodyPart": "Chest"}
+            ]
+            return jsonify(suggestions)
 
         @self.app.route('/<path:path>')
         def serve_static_files(path):
