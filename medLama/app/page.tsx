@@ -14,25 +14,41 @@ import { findAvailableDoctors, findNearbyHospitals } from "@/lib/analysis";
 
 type Stage = "chat" | "analysis" | "doctors" | "history";
 
-const MedLamaLogo = () => (
+const MedLamaLearnLogo = () => (
   <div className="flex items-center gap-3">
-    <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center">
-      <Stethoscope className="h-5 w-5 text-white" />
+    <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-emerald-500 via-teal-500 to-cyan-500 flex items-center justify-center shadow-lg">
+      <div className="relative">
+        <Stethoscope className="h-6 w-6 text-white" />
+        <div className="absolute -top-1 -right-1 w-3 h-3 bg-yellow-400 rounded-full animate-pulse"></div>
+      </div>
     </div>
     <div>
-      <h1 className="text-xl font-semibold text-gray-900 dark:text-white">MedLama</h1>
-      <p className="text-xs text-gray-500 dark:text-gray-400">AI Health Assistant</p>
+      <h1 className="text-2xl font-bold bg-gradient-to-r from-emerald-600 to-teal-600 bg-clip-text text-transparent">
+        MedLama Learn
+      </h1>
+      <p className="text-sm text-gray-600 dark:text-gray-400 font-medium">AI-Powered Medical Tutor</p>
     </div>
   </div>
 );
 
-// Sample conversation starters to make the chat more interactive
-const conversationStarters = [
-  "I've been having chest pain for the last few days.",
-  "My throat feels sore and I have a slight fever.",
-  "I've been getting headaches more frequently lately.",
-  "My skin has developed a rash that won't go away.",
-  "I'm feeling unusually tired all the time."
+// Educational learning prompts for MedLama Learn
+const learningPrompts = [
+  "Explain the cardiac cycle step by step",
+  "Quiz me on the respiratory system",
+  "Create a mind map of the nervous system",
+  "How does the immune system work?",
+  "Explain the digestive process",
+  "What are the main types of blood cells?",
+  "How does the endocrine system function?",
+  "Create a visual diagram of the heart anatomy"
+];
+
+// Learning modules for the dashboard
+const learningModules = [
+  { id: "concepts", title: "Concepts", icon: "📚", color: "bg-blue-500", description: "Learn medical concepts" },
+  { id: "quizzes", title: "Quizzes", icon: "🧠", color: "bg-purple-500", description: "Test your knowledge" },
+  { id: "visuals", title: "Visuals", icon: "🎨", color: "bg-green-500", description: "Interactive diagrams" },
+  { id: "progress", title: "Progress", icon: "📊", color: "bg-orange-500", description: "Track your learning" }
 ];
 
 export default function Home() {
@@ -41,7 +57,7 @@ export default function Home() {
   const [messages, setMessages] = useState<Message[]>([
     {
       role: "assistant",
-      content: "Hello! I'm your AI health assistant powered by Gemini and Perplexity. How can I help you today? Feel free to describe any symptoms or health concerns you're experiencing.",
+      content: "Welcome to MedLama Learn! 🎓 I'm your AI-powered medical tutor. I can help you understand complex medical concepts through interactive explanations, create quizzes to test your knowledge, and generate visual diagrams to make learning easier.\n\nWhat would you like to learn today? Try asking me to explain a medical concept, quiz you on a topic, or create a visual diagram!",
     },
   ]);
   const [input, setInput] = useState("");
@@ -283,9 +299,29 @@ export default function Home() {
 
   const Header = () => (
     <header className="sticky top-0 z-50 w-full border-b border-gray-200 dark:border-gray-800 bg-white/80 dark:bg-gray-900/80 backdrop-blur-sm">
-      <div className="max-w-4xl mx-auto px-4 py-3">
+      <div className="max-w-6xl mx-auto px-4 py-3">
         <div className="flex items-center justify-between">
-          <MedLamaLogo />
+          <MedLamaLearnLogo />
+          
+          {/* Navigation Menu */}
+          <nav className="hidden md:flex items-center gap-1">
+            <Button variant="ghost" size="sm" className="text-gray-600 dark:text-gray-400 hover:text-emerald-600 dark:hover:text-emerald-400">
+              Home
+            </Button>
+            <Button variant="ghost" size="sm" className="text-gray-600 dark:text-gray-400 hover:text-emerald-600 dark:hover:text-emerald-400">
+              Learn
+            </Button>
+            <Button variant="ghost" size="sm" className="text-gray-600 dark:text-gray-400 hover:text-emerald-600 dark:hover:text-emerald-400">
+              Quiz
+            </Button>
+            <Button variant="ghost" size="sm" className="text-gray-600 dark:text-gray-400 hover:text-emerald-600 dark:hover:text-emerald-400">
+              Visuals
+            </Button>
+            <Button variant="ghost" size="sm" className="text-gray-600 dark:text-gray-400 hover:text-emerald-600 dark:hover:text-emerald-400">
+              Dashboard
+            </Button>
+          </nav>
+          
           <div className="flex items-center gap-2">
             <Button
               variant="ghost"
@@ -464,15 +500,40 @@ export default function Home() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
+    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-emerald-50 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900">
       <Header />
       
-      {/* Main Chat Interface */}
-      <main className="max-w-4xl mx-auto px-4 py-6">
-        <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 overflow-hidden">
+      {/* Hero Section */}
+      <section className="max-w-6xl mx-auto px-4 py-12">
+        <div className="text-center mb-12">
+          <h1 className="text-5xl font-bold bg-gradient-to-r from-emerald-600 via-teal-600 to-cyan-600 bg-clip-text text-transparent mb-4">
+            MedLama Learn
+          </h1>
+          <p className="text-xl text-gray-600 dark:text-gray-300 mb-8 max-w-3xl mx-auto">
+            Your AI-Powered Medical Tutor. Learn medicine through conversations, quizzes, and mind maps.
+          </p>
+          
+          {/* Learning Modules Grid */}
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-4 max-w-4xl mx-auto mb-12">
+            {learningModules.map((module) => (
+              <div key={module.id} className="bg-white dark:bg-gray-800 rounded-xl p-6 shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-105 cursor-pointer border border-gray-200 dark:border-gray-700">
+                <div className={`w-12 h-12 ${module.color} rounded-lg flex items-center justify-center text-2xl mb-3 mx-auto`}>
+                  {module.icon}
+                </div>
+                <h3 className="font-semibold text-gray-900 dark:text-white mb-2">{module.title}</h3>
+                <p className="text-sm text-gray-600 dark:text-gray-400">{module.description}</p>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* Main Learning Interface */}
+      <main className="max-w-6xl mx-auto px-4 pb-12">
+        <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-xl border border-gray-200 dark:border-gray-700 overflow-hidden">
           
           {/* Chat Messages Area */}
-          <div className="h-[70vh] overflow-y-auto p-6">
+          <div className="h-[60vh] overflow-y-auto p-8">
             <div className="space-y-6">
               {messages.map((message, i) => (
                 <div
@@ -482,26 +543,26 @@ export default function Home() {
                   }`}
                 >
                   {/* Avatar */}
-                  <div className={`flex-shrink-0 w-8 h-8 rounded-full flex items-center justify-center ${
+                  <div className={`flex-shrink-0 w-10 h-10 rounded-full flex items-center justify-center ${
                     message.role === "assistant"
-                      ? "bg-blue-100 dark:bg-blue-900"
-                      : "bg-gray-100 dark:bg-gray-700"
+                      ? "bg-gradient-to-br from-emerald-100 to-teal-100 dark:from-emerald-900 dark:to-teal-900"
+                      : "bg-gradient-to-br from-blue-100 to-purple-100 dark:from-blue-900 dark:to-purple-900"
                   }`}>
                     {message.role === "assistant" ? (
-                      <Bot className="h-4 w-4 text-blue-600 dark:text-blue-400" />
+                      <Bot className="h-5 w-5 text-emerald-600 dark:text-emerald-400" />
                     ) : (
-                      <User className="h-4 w-4 text-gray-600 dark:text-gray-400" />
+                      <User className="h-5 w-5 text-blue-600 dark:text-blue-400" />
                     )}
                   </div>
                   
                   {/* Message Content */}
-                  <div className={`flex-1 max-w-3xl ${
+                  <div className={`flex-1 max-w-4xl ${
                     message.role === "assistant" ? "" : "text-right"
                   }`}>
-                    <div className={`inline-block px-4 py-3 rounded-2xl ${
+                    <div className={`inline-block px-6 py-4 rounded-2xl ${
                       message.role === "assistant"
-                        ? "bg-gray-100 dark:bg-gray-700 text-gray-900 dark:text-gray-100"
-                        : "bg-blue-600 text-white"
+                        ? "bg-gradient-to-r from-gray-50 to-gray-100 dark:from-gray-700 dark:to-gray-600 text-gray-900 dark:text-gray-100 border border-gray-200 dark:border-gray-600"
+                        : "bg-gradient-to-r from-emerald-500 to-teal-500 text-white shadow-lg"
                     }`}>
                       <p className="text-sm leading-relaxed whitespace-pre-wrap">{message.content}</p>
                     </div>
@@ -512,18 +573,18 @@ export default function Home() {
               {/* Processing Indicator */}
               {isProcessing && (
                 <div className="flex gap-4">
-                  <div className="flex-shrink-0 w-8 h-8 rounded-full bg-blue-100 dark:bg-blue-900 flex items-center justify-center">
-                    <Bot className="h-4 w-4 text-blue-600 dark:text-blue-400 animate-pulse" />
+                  <div className="flex-shrink-0 w-10 h-10 rounded-full bg-gradient-to-br from-emerald-100 to-teal-100 dark:from-emerald-900 dark:to-teal-900 flex items-center justify-center">
+                    <Bot className="h-5 w-5 text-emerald-600 dark:text-emerald-400 animate-pulse" />
                   </div>
                   <div className="flex-1">
-                    <div className="inline-block px-4 py-3 rounded-2xl bg-gray-100 dark:bg-gray-700">
-                      <div className="flex items-center gap-2 text-gray-600 dark:text-gray-400">
+                    <div className="inline-block px-6 py-4 rounded-2xl bg-gradient-to-r from-gray-50 to-gray-100 dark:from-gray-700 dark:to-gray-600 border border-gray-200 dark:border-gray-600">
+                      <div className="flex items-center gap-3 text-gray-600 dark:text-gray-400">
                         <div className="flex gap-1">
-                          <div className="w-2 h-2 bg-gray-400 rounded-full animate-bounce"></div>
-                          <div className="w-2 h-2 bg-gray-400 rounded-full animate-bounce" style={{animationDelay: '0.1s'}}></div>
-                          <div className="w-2 h-2 bg-gray-400 rounded-full animate-bounce" style={{animationDelay: '0.2s'}}></div>
+                          <div className="w-2 h-2 bg-emerald-400 rounded-full animate-bounce"></div>
+                          <div className="w-2 h-2 bg-emerald-400 rounded-full animate-bounce" style={{animationDelay: '0.1s'}}></div>
+                          <div className="w-2 h-2 bg-emerald-400 rounded-full animate-bounce" style={{animationDelay: '0.2s'}}></div>
                         </div>
-                        <span className="text-sm">Thinking...</span>
+                        <span className="text-sm font-medium">AI is thinking...</span>
                       </div>
                     </div>
                   </div>
@@ -535,22 +596,22 @@ export default function Home() {
           </div>
 
           {/* Input Area */}
-          <div className="border-t border-gray-200 dark:border-gray-700 p-4 bg-gray-50 dark:bg-gray-800">
+          <div className="border-t border-gray-200 dark:border-gray-700 p-6 bg-gradient-to-r from-gray-50 to-gray-100 dark:from-gray-800 dark:to-gray-700">
             
-            {/* Conversation Starters */}
+            {/* Learning Prompts */}
             {showConversationStarters && messages.length <= 2 && (
-              <div className="mb-4">
-                <p className="text-sm text-gray-600 dark:text-gray-400 mb-3">Common health concerns:</p>
-                <div className="flex flex-wrap gap-2">
-                  {conversationStarters.map((starter, idx) => (
+              <div className="mb-6">
+                <p className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-4">Try these learning prompts:</p>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                  {learningPrompts.map((prompt, idx) => (
                     <Button
                       key={idx}
                       variant="outline"
                       size="sm"
-                      className="text-xs bg-white dark:bg-gray-700 hover:bg-gray-50 dark:hover:bg-gray-600 border-gray-200 dark:border-gray-600"
-                      onClick={() => handleStarterSelect(starter)}
+                      className="text-left justify-start h-auto p-4 bg-white dark:bg-gray-700 hover:bg-emerald-50 dark:hover:bg-emerald-900/20 border-gray-200 dark:border-gray-600 hover:border-emerald-300 dark:hover:border-emerald-600 text-gray-700 dark:text-gray-300 hover:text-emerald-700 dark:hover:text-emerald-300"
+                      onClick={() => handleStarterSelect(prompt)}
                     >
-                      {starter}
+                      <span className="text-sm">{prompt}</span>
                     </Button>
                   ))}
                 </div>
@@ -558,19 +619,19 @@ export default function Home() {
             )}
 
             {/* Input Form */}
-            <form onSubmit={handleSubmit} className="flex gap-3">
+            <form onSubmit={handleSubmit} className="flex gap-4">
               <div className="flex-1 relative">
                 <Input
-                  placeholder="Describe your symptoms or health concerns..."
+                  placeholder="Ask me to explain a medical concept, quiz you, or create a visual diagram..."
                   value={input}
                   onChange={(e) => setInput(e.target.value)}
-                  className="w-full pr-12 py-3 bg-white dark:bg-gray-700 border-gray-300 dark:border-gray-600 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  className="w-full pr-14 py-4 bg-white dark:bg-gray-700 border-gray-300 dark:border-gray-600 rounded-xl focus:ring-2 focus:ring-emerald-500 focus:border-transparent text-base"
                   disabled={isProcessing}
                 />
                 <Button
                   type="submit"
                   size="sm"
-                  className="absolute right-2 top-1/2 transform -translate-y-1/2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg px-3"
+                  className="absolute right-2 top-1/2 transform -translate-y-1/2 bg-gradient-to-r from-emerald-500 to-teal-500 hover:from-emerald-600 hover:to-teal-600 text-white rounded-lg px-4 py-2 shadow-lg"
                   disabled={isProcessing || !input.trim()}
                 >
                   <Send className="h-4 w-4" />
@@ -578,17 +639,15 @@ export default function Home() {
               </div>
             </form>
 
-            {/* Additional Actions */}
-            <div className="mt-3 flex justify-center">
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={() => alert("Teleconsultation feature coming soon!")}
-                className="text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white border-gray-200 dark:border-gray-600"
-              >
-                <Video className="h-4 w-4 mr-2" />
-                Schedule Teleconsultation
-              </Button>
+            {/* Difficulty Slider */}
+            <div className="mt-4 flex items-center justify-center gap-4">
+              <span className="text-sm text-gray-600 dark:text-gray-400">Explain like I'm:</span>
+              <div className="flex items-center gap-2">
+                <Button variant="outline" size="sm" className="text-xs">5 years old</Button>
+                <Button variant="outline" size="sm" className="text-xs">High school student</Button>
+                <Button variant="outline" size="sm" className="text-xs">Medical student</Button>
+                <Button variant="outline" size="sm" className="text-xs">Doctor</Button>
+              </div>
             </div>
           </div>
         </div>
