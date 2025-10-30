@@ -61,6 +61,7 @@ export default function LearnPage() {
   const [input, setInput] = useState('')
   const [isProcessing, setIsProcessing] = useState(false)
   const [showPrompts, setShowPrompts] = useState(true)
+  const [conversationId, setConversationId] = useState<string | null>(null)
   const scrollAreaRef = useRef<HTMLDivElement>(null)
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -80,12 +81,24 @@ export default function LearnPage() {
     setShowPrompts(false)
 
     try {
-      const response = await fetch(`http://localhost:5002/api/llm/response/?message=${encodeURIComponent(input)}`)
-      const data = await response.json()
+      // Import API client dynamically
+      const { apiClient } = await import('@/lib/api')
+      
+      // Send message to new API with conversation_id
+      const data = await apiClient.sendMessage({
+        message: input,
+        conversation_id: conversationId || undefined,
+        learning_level: 'medical_student'
+      })
+      
+      // Store conversation ID for future messages
+      if (data.conversation_id && !conversationId) {
+        setConversationId(data.conversation_id)
+      }
       
       const aiMessage: Message = {
         id: (Date.now() + 1).toString(),
-        content: data.messages,
+        content: data.response,
         isUser: false,
         timestamp: new Date()
       }
@@ -95,7 +108,9 @@ export default function LearnPage() {
       console.error('Error:', error)
       const errorMessage: Message = {
         id: (Date.now() + 1).toString(),
-        content: "I'm sorry, I'm having trouble connecting right now. Please try again.",
+        content: error instanceof Error 
+          ? `Error: ${error.message}. Please make sure the backend is running and your API key is configured.`
+          : "I'm sorry, I'm having trouble connecting right now. Please try again.",
         isUser: false,
         timestamp: new Date()
       }
@@ -156,36 +171,36 @@ export default function LearnPage() {
       </header>
 
       {/* Main Content */}
-      <main className="max-w-7xl mx-auto px-4 py-8">
-        <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-xl border border-gray-200 dark:border-gray-700 overflow-hidden">
+      <main className="max-w-7xl mx-auto px-4 py-6 md:py-8">
+        <div className="bg-white dark:bg-gray-800 rounded-xl md:rounded-2xl shadow-xl border border-gray-200 dark:border-gray-700 overflow-hidden">
           {/* Chat Area */}
-          <div className="h-[70vh] overflow-hidden">
-            <ScrollArea ref={scrollAreaRef} className="h-full p-6">
-              <div className="space-y-6">
+          <div className="h-[60vh] md:h-[70vh] overflow-hidden">
+            <ScrollArea ref={scrollAreaRef} className="h-full p-4 md:p-6">
+              <div className="space-y-4 md:space-y-6">
                 {messages.map((message) => (
-                  <div key={message.id} className={`flex gap-4 ${message.isUser ? 'flex-row-reverse' : 'flex-row'}`}>
-                    <div className={`flex-shrink-0 w-10 h-10 rounded-full flex items-center justify-center ${
+                  <div key={message.id} className={`flex gap-3 md:gap-4 ${message.isUser ? 'flex-row-reverse' : 'flex-row'}`}>
+                    <div className={`flex-shrink-0 w-8 h-8 md:w-10 md:h-10 rounded-full flex items-center justify-center ${
                       message.isUser 
                         ? 'bg-blue-100 dark:bg-blue-900' 
                         : 'bg-gradient-to-br from-blue-100 to-indigo-100 dark:from-blue-900 dark:to-indigo-900'
                     }`}>
                       {message.isUser ? (
-                        <User className="h-5 w-5 text-blue-600 dark:text-blue-400" />
+                        <User className="h-4 w-4 md:h-5 md:w-5 text-blue-600 dark:text-blue-400" />
                       ) : (
-                        <Bot className="h-5 w-5 text-blue-600 dark:text-blue-400" />
+                        <Bot className="h-4 w-4 md:h-5 md:w-5 text-blue-600 dark:text-blue-400" />
                       )}
                     </div>
                     <div className={`flex-1 max-w-4xl ${message.isUser ? 'text-right' : 'text-left'}`}>
-                      <div className={`inline-block px-6 py-4 rounded-2xl ${
+                      <div className={`inline-block px-4 py-3 md:px-6 md:py-4 rounded-xl md:rounded-2xl ${
                         message.isUser
                           ? 'bg-blue-600 text-white'
                           : 'bg-gradient-to-r from-gray-50 to-gray-100 dark:from-gray-700 dark:to-gray-600 text-gray-900 dark:text-gray-100 border border-gray-200 dark:border-gray-600'
                       }`}>
-                        <div className="text-sm leading-relaxed whitespace-pre-wrap">
+                        <div className="text-sm md:text-base leading-relaxed whitespace-pre-wrap">
                           {message.content}
                         </div>
                       </div>
-                      <div className="text-xs text-gray-500 dark:text-gray-400 mt-2">
+                      <div className="text-xs text-gray-500 dark:text-gray-400 mt-1 md:mt-2">
                         {message.timestamp.toLocaleTimeString()}
                       </div>
                     </div>
@@ -193,14 +208,14 @@ export default function LearnPage() {
                 ))}
                 
                 {isProcessing && (
-                  <div className="flex gap-4">
-                    <div className="flex-shrink-0 w-10 h-10 rounded-full flex items-center justify-center bg-gradient-to-br from-blue-100 to-indigo-100 dark:from-blue-900 dark:to-indigo-900">
-                      <Bot className="h-5 w-5 text-blue-600 dark:text-blue-400" />
+                  <div className="flex gap-3 md:gap-4">
+                    <div className="flex-shrink-0 w-8 h-8 md:w-10 md:h-10 rounded-full flex items-center justify-center bg-gradient-to-br from-blue-100 to-indigo-100 dark:from-blue-900 dark:to-indigo-900">
+                      <Bot className="h-4 w-4 md:h-5 md:w-5 text-blue-600 dark:text-blue-400" />
                     </div>
                     <div className="flex-1 max-w-4xl">
-                      <div className="inline-block px-6 py-4 rounded-2xl bg-gradient-to-r from-gray-50 to-gray-100 dark:from-gray-700 dark:to-gray-600 text-gray-900 dark:text-gray-100 border border-gray-200 dark:border-gray-600">
+                      <div className="inline-block px-4 py-3 md:px-6 md:py-4 rounded-xl md:rounded-2xl bg-gradient-to-r from-gray-50 to-gray-100 dark:from-gray-700 dark:to-gray-600 text-gray-900 dark:text-gray-100 border border-gray-200 dark:border-gray-600">
                         <div className="flex items-center gap-2">
-                          <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-blue-600"></div>
+                          <div className="animate-spin rounded-full h-3 w-3 md:h-4 md:w-4 border-b-2 border-blue-600"></div>
                           <span className="text-sm">Thinking...</span>
                         </div>
                       </div>
@@ -212,21 +227,21 @@ export default function LearnPage() {
           </div>
 
           {/* Input Area */}
-          <div className="border-t border-gray-200 dark:border-gray-700 p-6 bg-gradient-to-r from-gray-50 to-gray-100 dark:from-gray-800 dark:to-gray-700">
+          <div className="border-t border-gray-200 dark:border-gray-700 p-4 md:p-6 bg-gradient-to-r from-gray-50 to-gray-100 dark:from-gray-800 dark:to-gray-700">
             {/* Learning Prompts */}
             {showPrompts && messages.length <= 2 && (
-              <div className="mb-6">
-                <p className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-4">Try these learning prompts:</p>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+              <div className="mb-4 md:mb-6">
+                <p className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-3 md:mb-4">Try these learning prompts:</p>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-2 md:gap-3">
                   {learningPrompts.map((prompt, idx) => (
                     <Button
                       key={idx}
                       variant="outline"
                       size="sm"
-                      className="text-left justify-start h-auto p-4 bg-white dark:bg-gray-700 hover:bg-blue-50 dark:hover:bg-blue-900/20 border-gray-200 dark:border-gray-600 hover:border-blue-300 dark:hover:border-blue-600 text-gray-700 dark:text-gray-300 hover:text-blue-700 dark:hover:text-blue-300"
+                      className="text-left justify-start h-auto p-3 md:p-4 bg-white dark:bg-gray-700 hover:bg-blue-50 dark:hover:bg-blue-900/20 border-gray-200 dark:border-gray-600 hover:border-blue-300 dark:hover:border-blue-600 text-gray-700 dark:text-gray-300 hover:text-blue-700 dark:hover:text-blue-300"
                       onClick={() => handlePromptSelect(prompt)}
                     >
-                      <span className="text-sm">{prompt}</span>
+                      <span className="text-xs md:text-sm">{prompt}</span>
                     </Button>
                   ))}
                 </div>
@@ -234,34 +249,34 @@ export default function LearnPage() {
             )}
 
             {/* Input Form */}
-            <form onSubmit={handleSubmit} className="flex gap-4">
+            <form onSubmit={handleSubmit} className="flex gap-3 md:gap-4">
               <div className="flex-1 relative">
                 <Input
                   placeholder="Ask me to explain a medical concept, quiz you, or create a visual diagram..."
                   value={input}
                   onChange={(e) => setInput(e.target.value)}
-                  className="w-full pr-14 py-4 bg-white dark:bg-gray-700 border-gray-300 dark:border-gray-600 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent text-base"
+                  className="w-full pr-12 md:pr-14 py-3 md:py-4 bg-white dark:bg-gray-700 border-gray-300 dark:border-gray-600 rounded-lg md:rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm md:text-base"
                   disabled={isProcessing}
                 />
                 <Button
                   type="submit"
                   size="sm"
-                  className="absolute right-2 top-1/2 transform -translate-y-1/2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg px-4 py-2 shadow-lg"
+                  className="absolute right-1 md:right-2 top-1/2 transform -translate-y-1/2 bg-blue-600 hover:bg-blue-700 text-white rounded-md md:rounded-lg px-3 md:px-4 py-1.5 md:py-2 shadow-lg"
                   disabled={isProcessing || !input.trim()}
                 >
-                  <Send className="h-4 w-4" />
+                  <Send className="h-3 w-3 md:h-4 md:w-4" />
                 </Button>
               </div>
             </form>
 
             {/* Difficulty Level */}
-            <div className="mt-4 flex items-center justify-center gap-4">
-              <span className="text-sm text-gray-600 dark:text-gray-400">Explain like I'm:</span>
-              <div className="flex items-center gap-2">
-                <Button variant="outline" size="sm" className="text-xs">5 years old</Button>
-                <Button variant="outline" size="sm" className="text-xs">High school student</Button>
-                <Button variant="outline" size="sm" className="text-xs bg-blue-100 dark:bg-blue-900 text-blue-700 dark:text-blue-300">Medical student</Button>
-                <Button variant="outline" size="sm" className="text-xs">Doctor</Button>
+            <div className="mt-3 md:mt-4 flex flex-col sm:flex-row items-center justify-center gap-2 md:gap-4">
+              <span className="text-xs md:text-sm text-gray-600 dark:text-gray-400">Explain like I'm:</span>
+              <div className="flex items-center gap-1 md:gap-2 flex-wrap justify-center">
+                <Button variant="outline" size="sm" className="text-xs px-2 md:px-3 py-1 md:py-2">5 years old</Button>
+                <Button variant="outline" size="sm" className="text-xs px-2 md:px-3 py-1 md:py-2">High school student</Button>
+                <Button variant="outline" size="sm" className="text-xs px-2 md:px-3 py-1 md:py-2 bg-blue-100 dark:bg-blue-900 text-blue-700 dark:text-blue-300">Medical student</Button>
+                <Button variant="outline" size="sm" className="text-xs px-2 md:px-3 py-1 md:py-2">Doctor</Button>
               </div>
             </div>
           </div>

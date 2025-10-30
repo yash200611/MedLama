@@ -18,6 +18,29 @@ MedLama is an intelligent health assistant that combines the power of AI with me
 
 [![Live Demo](https://img.shields.io/badge/Live%20Demo-Visit%20Site-green?style=for-the-badge)](https://medlama.vercel.app)
 
+## ⚡ Quick Start
+
+```bash
+# 1. Clone and install
+git clone https://github.com/yash200611/MedLama.git
+cd MedLama
+pip install -r requirements.txt
+
+# 2. Configure API key
+cp .env.example .env
+# Add your GEMINI_API_KEY to .env
+
+# 3. Build frontend
+cd medLama && npm install && npm run build && cd ..
+
+# 4. Run the app
+python backend/app.py
+```
+
+Visit **http://localhost:5002** and start learning!
+
+📖 **Detailed setup guide:** [SETUP_GUIDE.md](./SETUP_GUIDE.md)
+
 ## 🛠️ Tech Stack
 
 ### Frontend
@@ -43,9 +66,10 @@ MedLama is an intelligent health assistant that combines the power of AI with me
 ## 📦 Installation
 
 ### Prerequisites
-- Python 3.8+
+- Python 3.11+
 - Node.js 18+
-- MongoDB (optional - uses mock data if not available)
+- Google Gemini API Key ([Get one free](https://makersuite.google.com/app/apikey))
+- MongoDB Atlas Account ([Free tier](https://www.mongodb.com/cloud/atlas/register))
 
 ### 1. Clone the Repository
 ```bash
@@ -61,10 +85,11 @@ pip install -r requirements.txt
 # Copy environment template
 cp env.template .env
 
-# Edit .env file with your API keys
+# Edit .env file with your API keys and MongoDB connection
 # GEMINI_API_KEY=your_gemini_api_key_here
-# PERPLEXITY_API_KEY=your_perplexity_api_key_here
-# database-connection-string=test
+# MONGODB_URI=mongodb+srv://medlama_user:PASSWORD@cluster0.xxxxx.mongodb.net/medlama?retryWrites=true&w=majority
+
+# See MONGODB_QUICK_START.md for MongoDB Atlas setup (5 minutes)
 ```
 
 ### 3. Frontend Setup
@@ -77,10 +102,10 @@ cd ..
 
 ### 4. Run the Application
 ```bash
-# Start the Flask backend
-python app.py
+# Start the Flask backend (with database)
+python backend/app.py
 
-# The app will be available at http://localhost:5001
+# The app will be available at http://localhost:5002
 ```
 
 ## 🔧 Configuration
@@ -90,37 +115,49 @@ python app.py
 Create a `.env` file in the root directory:
 
 ```env
-# Required API Keys
+# Required
 GEMINI_API_KEY=your_gemini_api_key_here
-PERPLEXITY_API_KEY=your_perplexity_api_key_here
 
-# Database (optional)
-database-connection-string=mongodb://localhost:27017/
+# MongoDB Atlas (Required)
+MONGODB_URI=mongodb+srv://medlama_user:PASSWORD@cluster0.xxxxx.mongodb.net/medlama?retryWrites=true&w=majority
+DATABASE_NAME=medlama
+
+# Optional
+PERPLEXITY_API_KEY=your_perplexity_api_key_here
 ```
 
-### Getting API Keys
+### Getting Started
 
-1. **Google Gemini API**: Visit [Google AI Studio](https://makersuite.google.com/app/apikey)
-2. **Perplexity API**: Sign up at [Perplexity AI](https://www.perplexity.ai/settings/api)
+1. **Google Gemini API**: Visit [Google AI Studio](https://makersuite.google.com/app/apikey) - Free!
+2. **MongoDB Atlas**: See [MONGODB_QUICK_START.md](./MONGODB_QUICK_START.md) - 5 minute setup, Free tier!
+3. **Perplexity API** (Optional): Sign up at [Perplexity AI](https://www.perplexity.ai/settings/api)
 
 ## 🏗️ Project Structure
 
 ```
 MedLama/
-├── app.py                 # Main Flask application
-├── app_simple.py         # Simplified version for development
-├── database.py           # MongoDB database operations
-├── multiturn.py          # AI conversation logic
-├── llm.py               # Language model configuration
-├── requirements.txt      # Python dependencies
-├── env.template         # Environment variables template
-├── README.md            # This file
-└── medLama/            # Next.js frontend
-    ├── app/            # Next.js app directory
-    ├── components/     # React components
-    ├── lib/           # Utility functions
-    ├── hooks/         # Custom React hooks
-    └── package.json   # Node.js dependencies
+├── backend/                    # Flask backend (NEW!)
+│   ├── app.py                 # Main Flask application
+│   ├── config.py              # Configuration management
+│   ├── services/
+│   │   └── ai_service.py     # Real AI integration with Gemini
+│   ├── routes/
+│   │   └── chat.py           # API endpoints
+│   ├── middleware/
+│   │   └── error_handler.py  # Error handling
+│   └── utils/
+│       └── logger.py         # Logging
+├── medLama/                   # Next.js frontend
+│   ├── app/                  # Next.js app directory
+│   ├── components/           # React components
+│   ├── lib/
+│   │   └── api.ts           # API client (NEW!)
+│   └── package.json
+├── requirements.txt          # Python dependencies
+├── .env.example             # Environment template
+├── SETUP_GUIDE.md          # Setup instructions (NEW!)
+├── IMPROVEMENT_PLAN.md     # Feature roadmap (NEW!)
+└── README.md               # This file
 ```
 
 ## 🎯 Usage
